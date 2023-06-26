@@ -152,12 +152,6 @@
                             var printerCard = createPrinterCard(printerName);
                             index = printers.indexOf(printerName);
                             var buildingName = printerName.split('-')[1];
-                            // console.log(buildingName);
-                            // if(buildingName.startsWith('b')) {
-                            //    $('#1').append(printerCard);
-                            // } else {
-                            //      $('#2').append(printerCard);
-                            //  }
                             if(index % 2 == 0) {
                                 $('#1').append(printerCard);
                             } else {
@@ -241,21 +235,6 @@
 
             });
 
-                
-            // function createPrinterCard(printerName) {
-            //     var printerSection = $('<div>').addClass('printer-section');
-            //     var printerCard = $('<div>').addClass('printer-card card-ok');
-            //     var printerHeader = $('<div>').addClass('printer-header');
-            //     var centerText1 = $('<div>').addClass('center-text').append($('<h3>').text(printerName));
-            //     var centerText2 = $('<div>').addClass('center-text').append($('<h6>').text('Learning Commons'));
-            //     printerHeader.append(centerText1, centerText2);
-            //     printerCard.append(printerHeader);
-            //     printerCard.append($('<div>').css({'border-left': '1px solid grey', 'height': '35px'}));
-            //     // ... Continue creating the rest of the elements and structure
-    
-            //     printerSection.append(printerCard);
-            //     $('#printer-container').append(printerSection); // Add the printer card to the container
-            // }
     
             function updatePrinter(printerName, card, index) {
                 $.ajax({
@@ -385,24 +364,7 @@
                 });
                 
             }
-            // Function to arrange the printer cards based on the class name
-            // function arrange(){
-            //     var printerCards = $('.printer-card');
-            //     var printerSections = $('.printer-section');
-            //     printerCards.each(function(index){
-            //         var printerCard = $(this);
-            //         var printerSection = printerSections.eq(index);
-            //         if(printerCard.hasClass('card-ok')){
-            //             printerSection.prepend(printerCard);
-            //         }
-            //         else if(printerCard.hasClass('card-warning')){
-            //             printerSection.append(printerCard);
-            //         }
-            //         else if(printerCard.hasClass('card-error')){
-            //             printerSection.append(printerCard);
-            //         }
-            //     });
-            // }
+            
         
         </script>
         
