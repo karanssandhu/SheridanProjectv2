@@ -54,6 +54,9 @@
             .card-error{
                 background-color: #5B3F3F;
             }
+	    .card-empty{
+		background-color: #5B3F3F !important;
+	    }
             .printer-header{
                 width: 22%;
                 display: flex;
@@ -90,9 +93,10 @@
             .toner-full-status{
                 display: flex;
                 align-items: center;
+		width: 100%;
             }
             .toner-bar{
-                width: 100%;
+                width: 70%;
                 height: 6px;
                 padding: 3px;
                 margin: 1px;
@@ -100,13 +104,14 @@
                 background-color: #383945;
             }
             .b-toner-level{
-                width: 80%;
+                width: 0%;
                 height: 100%;
                 background-color: white;
                 border-radius: 50px;
             }
             .toner-percentage{
-                font-size: 1.25rem;
+                font-size: 1.15rem;
+		width: 30%;
             }
             .c-toner-level{
                 width: 100%;
@@ -130,10 +135,16 @@
                 border-radius: 50px;
             }
 	.location{
-		font-size:1em;
+		font-size:0.75em;
 		padding:0;
 	}
+		.status-empty{
+		 color: #C52300;
+		}
 
+		.status-low{
+			color: #FFDB5C;
+			}
         </style>
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
         <script>
@@ -161,15 +172,18 @@
                         });
 
                         // Call the updatePrinter function for each printer card every 5 seconds
-                        $('.printer-card').each(function(index) {
-                            // var printerNameHeading = $('<h3>').text(printerName);
-                            var printerName = $(this).find('.center-text').find('h3').text();
+                        var printerCards = $('.printer-card');
+                        var index = 0;
 
-                            var printerCard = $(this);
-                            setInterval(function() {
-                                updatePrinter(printerName, printerCard, index);
-                            }, 10000);
-                        });
+                        function updateNextPrinter() {
+                            var printerCard = printerCards.eq(index);
+                            var printerName = printerCard.find('.center-text').find('h3').text();
+                            updatePrinter(printerName, printerCard, index);
+                            index = (index + 1) % printerCards.length;
+                        }
+
+                        setInterval(updateNextPrinter, 1000);
+
                     },
                     error: function(error) {
                         console.log('Error loading printer cards:', error);
@@ -187,16 +201,16 @@
                 var centerText1 = $('<div>').addClass('center-text');
                 var printerNameHeading = $('<h3>').text(printerName);
                 var centerText2 = $('<div>').addClass('center-text');
-                var locationHeading = $('<h6>').text('Loading...');
+                var locationHeading = $('<h6>').text('Loading...').addClass('location');
                 var borderLine1 = $('<div>').css({'border-left': '1px solid grey', 'height': '35px'});
                 var printerStatus = $('<div>').addClass('printer-status');
                 var messageDiv = $('<div>').addClass('message');
                 var messageParagraph = $('<p>').addClass('message status-ok').text('Loading...');
                 var trayStatusDiv = $('<div>').addClass('tray-status');
-                var tray1 = $('<div>').append($('<p>').text('Tray 1: ').append($('<span>').addClass('tray1-level status-warning').text('Loading...')));
-                var tray2 = $('<div>').append($('<p>').text('Tray 2: ').append($('<span>').addClass('tray2-level status-warning').text('Loading...')));
-                var tray3 = $('<div>').append($('<p>').text('Tray 3: ').append($('<span>').addClass('tray3-level status-warning').text('Loading...')));
-                var tray4 = $('<div>').append($('<p>').text('Tray 4: ').append($('<span>').addClass('tray4-level status-warning').text('Loading...')));
+                var tray1 = $('<div>').append($('<p>').text('Tray 1: ').addClass('tray1-p').append($('<span>').addClass('tray1-level status-warning').text('Loading...')));
+                var tray2 = $('<div>').append($('<p>').text('Tray 2: ').addClass('tray2-p').append($('<span>').addClass('tray2-level status-warning').text('Loading...')));
+                var tray3 = $('<div>').append($('<p>').text('Tray 3: ').addClass('tray3-p').append($('<span>').addClass('tray3-level status-warning').text('Loading...')));
+                var tray4 = $('<div>').append($('<p>').text('Tray 4: ').addClass('tray4-p').append($('<span>').addClass('tray4-level status-warning').text('Loading...')));
                 var borderLine2 = $('<div>').css({'border-left': '1px solid grey', 'height': '35px'});
                 var tonerStatus = $('<div>').addClass('toner-status');
                 var tonerFullStatus = $('<div>').addClass('toner-full-status');
@@ -244,13 +258,16 @@
                         name: printerName
                     },
                     success: function(response) {
-                        card.removeClass('status-ok status-warning status-error');
+                        card.removeClass('status-ok status-warning status-error status-empty status-low');
+			card.removeClass('card-ok card-warning card-error card-empty card-low');
+
 
                         if (response['status'] == 'offline') {
                             card.removeClass('card-ok card-warning').addClass('card-error');
+				card.find('.message p').text(response['status']);
                             
                         } else {
-                            arrange();
+                           // arrange();
                             card.removeClass('card-error card-warning').addClass('card-ok');
                         }
 
@@ -263,44 +280,72 @@
                         // Update printer information
                         card.find('.printer-header h6').text(printer['location']);
                         card.find('.message p').text(printer['status']);
+			card.find('.message p').removeClass('status-ok status-warning status-error status-empty status-low');
 
-                        if(printer['status'] == 'Ready' || printer['status'] == 'Busy' || printer['status'] == 'Sleep Mode') {
+                        if(printer['status'] == 'Ready' || printer['status'] == 'Busy' || printer['status'] == 'Sleep Mode'|| printer['status'] == 'Power Saver'|| printer['status'] == 'Sleep') {
                             card.find('.message p').addClass('status-ok');
                             card.addClass('card-ok');
                         }
                         else{
-                            arrange();
-                            card.find('.message p').addClass('card-warning');
+                           // arrange();
+                            card.find('.message p').addClass('status-warning');
+				card.removeClass('card-ok');
+				card.addClass('card-warning');
                         }
 
                         
                         // Update tray status
                         card.find('.tray1-level').text(printer['trays'][0]['status']+ " " + printer['trays'][0]['size']);
                         // if status is ok then change color to green
-                        card.find('.tray1-level').removeClass('status-ok status-warning status-error');
+                        card.find('.tray1-level').removeClass('status-ok status-warning status-error status-low status-empty');
                         card.find('.tray1-level').addClass('status-' + printer['trays'][0]['status'].toLowerCase());
-
-                        card.find('.tray2-level').text(printer['trays'][1]['status']+ " " + printer['trays'][1]['size']);
-                        card.find('.tray2-level').removeClass('status-ok status-warning status-error');
-                        card.find('.tray2-level').addClass('status-' + printer['trays'][1]['status'].toLowerCase());
-
-                        // if there is a third tray, update it
-                        if (printer['trays'].length >2){
-
+			card.find('.printer-card').removeClass('card-ok card-warning card-error');
+			card.find('.printer-card').addClass('card-' + printer['trays'][0]['status'].toLowerCase());
+                       card.addClass('card-' + printer['trays'][0]['status'].toLowerCase());
+			//console.log(printer['traysN']);
+                        // if there is more than one tray
+ 			if (printer['traysN'] >1){
+ 				card.find('.tray2-level').text(printer['trays'][1]['status']+ " " + printer['trays'][1]['size']);
+                       	 	card.find('.tray2-level').removeClass('status-ok status-warning status-error status-low status-empty');
+                        	card.find('.tray2-level').addClass('status-' + printer['trays'][1]['status'].toLowerCase());
+                        	card.find('.printer-card').removeClass('card-ok card-warning')
+				card.find('.printer-card').addClass('card-' + printer['trays'][1]['status'].toLowerCase());
+			
+                        if (printer['traysN'] >2){
                             card.find('.tray3-level').text(printer['trays'][2]['status']+ " " + printer['trays'][2]['size']);
-                            card.find('.tray3-level').removeClass('status-ok status-warning status-error');
+                            card.find('.tray3-level').removeClass('status-ok status-warning status-error status-low status-empty');
+                            card.find('.printer-card').removeClass('card-ok card-warning')
                             card.find('.tray3-level').addClass('status-' + printer['trays'][2]['status'].toLowerCase());
+                            card.find('.printer-card').addClass('card-' + printer['trays'][2]['status'].toLowerCase());
 
+			if(printer['traysN'] >3){
                             card.find('.tray4-level').text(printer['trays'][3]['status']+ " " + printer['trays'][3]['size']);
-                            card.find('.tray4-level').removeClass('status-ok status-warning status-error');
+                            card.find('.tray4-level').removeClass('status-ok status-warning status-error status-low status-empty');
+                            card.find('.printer-card').removeClass('card-ok card-warning')
                             card.find('.tray4-level').addClass('status-' + printer['trays'][3]['status'].toLowerCase());
-                        }
+                            card.find('.printer-card').addClass('card-' + printer['trays'][3]['status'].toLowerCase());
+
+                        	}
+			else{
+
+                            card.find('.tray4-p').empty();	
+			}
+			}else{
+				card.find('.tray3-p').empty();
+				 card.find('.tray4-p').empty();	
+			}
+		}else{
+			card.find('.tray2-p').empty();
+			card.find('.tray3-p').empty();
+			card.find('.tray4-p').empty();	
+		}
+
                         // Update toner status
                         card.find('.toner-percentage').text(printer['toner_percentage'] + "%");
-                        card.find('.b-toner-level').css('width', printer['toner_percentage']);
+                        card.find('.b-toner-level').css('width', printer['toner_percentage'] + "%");
 
                         // add a hyperlink to the card, so if you click on the card it opens the hyper link
-                        console.log(printer['address'])
+                       // console.log(printer['address'])
                         var link = "http://"+printer['address'];
                         card.attr('href', link);
                         if (printer['isColor']==true) {

@@ -3,6 +3,7 @@ mi-a148g-prn1$Lexmark XM7155
 mi-a200-prn2$Lexmark XS864
 mi-a216-prn3$Lexmark XS864
 mi-a202b-prn1$Lexmark XM3150+10.64.65.27
+mi-a246-prn2$Lexmark XS864
 mi-a300a-prn1$Lexmark XS864
 mi-a315-prn1$Lexmark XM7155
 mi-a400d-prn1$Lexmark XS864
@@ -17,7 +18,9 @@ mi-b350-prn1$Lexmark XM9155
 mi-b362-prn1$Lexmark XM9155
 mi-b371a-prn1$Lexmark XM9155
 mi-b402-prn1$Lexmark XM9155
-mi-b462-prn1
-mi-b490-prn1
-mi-b502-prn1
-mi-b562-prn1
+mi-b442-prn1$Lexmark X954
+mi-b462-prn1$Lexmark XM9155
+mi-b490-prn1$Lexmark XM9155
+mi-b502-prn1$Lexmark XM9155
+mi-b562-prn1$Lexmark XM9155
+mi-b246-prn1$Lexmark XC9255+10.64.65.43

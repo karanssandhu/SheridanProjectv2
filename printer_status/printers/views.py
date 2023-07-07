@@ -18,8 +18,8 @@ URLStatus = ".internal/cgi-bin/dynamic/printer/PrinterStatus.html"
 
 printers_list = "../Printers.txt"
 
-oldModelList = ['Lexmark XS955', 'Lexmark XS864', 'Lexmark XM3150', 'Lexmark XM7155', 'Lexmark XM9155','Lexmark X954']
-newModelList = ['Lexmark XC9255']
+oldModelList = ['Lexmark XS955', 'Lexmark XS864', 'Lexmark XM3150', 'Lexmark XM7155', 'Lexmark XM9155','Lexmark X954','Lexmark X864de','Lexmark XM7155','Lexmark M5155','Lexmark MX410de','Lexmark CS510de','Lexmark C734']
+newModelList = ['Lexmark XC9255','Lexmark XC4140']
 
 pygame.init()
 mixer.init()
@@ -81,17 +81,25 @@ class Printer:
             self.status_colour = 0b001000
         return self.html
 
-
-
+    def getJson(self, url):
+        response = requests.get(url, verify=False)
+        return response.json()
+    
     def update(self):
         self.getStatus()
-        self.getLocaton()
-        self.getAddress()
-        self.getTonerPercentage()
-        print(self.toner_percentage)
+        if self.model in oldModelList:
+            self.getLocaton()
+        if self.address == "":
+            if self.model in oldModelList:
+                self.getAddress()
+        if self.model in oldModelList:        
+            self.getTonerPercentage()
+
         if self.toner_percentage == "" or self.toner_percentage == "Couldn\'t find toner percentage":
             self.isColor = True
             self.getCatridges()
+        if self.cyan_cartridge == "Couldn't find cyan cartridge" and self.magenta_cartridge == "Couldn't find magenta cartridge" and self.yellow_cartridge == "Couldn't find yellow cartridge":
+            self.isColor = False
         self.getTrays()
 
 
@@ -146,19 +154,20 @@ class Printer:
                     #pygame.time.delay(10000)
                     # mixer.music.play()
         elif self.model in newModelList:
-            url = "http://" + self.name +"/#/Status"
-            self.getHtml(url)
-            print(self.html)
-            if self.html == "":
+            if self.address != "":
+                url = "http://" + self.address +"/webglue/isw/status"
+            else:
+                url = "http://" + self.name +"/webglue/isw/status"
+            # get the json response
+            json_data = self.getJson(url)
+            if json_data == "":
                 self.printer_status = "offline"
             else:
-                soup = BeautifulSoup(self.html, 'html.parser')
-                status_tag= soup.find(string=re.compile(r'Status:'))
-                if status_tag:
-                    self.status = status_tag.split('Status: ')[1].strip()
-                else:
-                    self.status = "offline (error Parsing)"
-                    print('Status not found')
+                # parse the json response
+                # json_data = json.loads(self.html)
+                self.status = json_data[0]['IrTitle'].strip()
+                self.printer_status = json_data[0]['IrTitle'].strip()
+                
     
     def getCatridges(self):
         if self.model in oldModelList:
@@ -168,34 +177,42 @@ class Printer:
                 self.magenta_cartridge = "Couldn't find magenta cartridge"
                 self.yellow_cartridge = "Couldn't find yellow cartridge"
             else:
-                soup = BeautifulSoup(self.html, 'html.parser')
-                self.cyan_cartridge = soup.find('td', bgcolor="#00ffff")['title']
-                self.magenta_cartridge = soup.find('td', bgcolor="#ff00ff")['title']
-                self.yellow_cartridge = soup.find('td', bgcolor="#ffff00")['title']
-                self.black_cartridge = soup.find('td', bgcolor="#000000")['title']
-                print(self.cyan_cartridge + " " + self.magenta_cartridge + " " + self.yellow_cartridge + " " + self.black_cartridge)
+                try:
+                	soup = BeautifulSoup(self.html, 'html.parser')
+                	self.cyan_cartridge = soup.find('td', bgcolor="#00ffff")['title']
+                	self.magenta_cartridge = soup.find('td', bgcolor="#ff00ff")['title']
+                	self.yellow_cartridge = soup.find('td', bgcolor="#ffff00")['title']
+                	self.black_cartridge = soup.find('td', bgcolor="#000000")['title']
+                except:
+                	self.cyan_cartridge = "Couldn't find cyan cartridge"
+                	self.magenta_cartridge = "Couldn't find magenta cartridge"
+                	self.yellow_cartridge = "Couldn't find yellow cartridge"
         elif self.model in newModelList:
             if self.address != "":
-                url="http://"+self.address+"/#/Status"
+                url = "http://" + self.address +"/webglue/rawcontent?timedRefresh=1&c=Status&lang=en"
             else:
-                url="http://"+self.name+"/#/Status"
-            self.getHtml(url)
-            print(self.html)
-            if self.html == "":
+                url = "http://" + self.name +"/webglue/rawcontent?timedRefresh=1&c=Status&lang=en"
+            
+            json_data = self.getJson(url)
+
+            if json_data == "":
                 self.cyan_cartridge = "Couldn't find cyan cartridge"
                 self.magenta_cartridge = "Couldn't find magenta cartridge"
                 self.yellow_cartridge = "Couldn't find yellow cartridge"
             else:
-                soup = BeautifulSoup(self.html, 'html.parser')
-                # <div class="progress-inner BlackGauge" role="img" title="78" aria-labelledby="78%">
-                # <div class="progress-inner CyanGauge" role="img" title="5" aria-labelledby="5%">
-                # <div class="progress-inner MagentaGauge" role="img" title="5" aria-labelledby="5%">
-                # <div class="progress-inner YellowGauge" role="img" title="5" aria-labelledby="5%">
-
-                self.cyan_cartridge = soup.find('div', class_="progress-inner CyanGauge")['title']
-                self.magenta_cartridge = soup.find('div', class_="progress-inner MagentaGauge")['title']
-                self.yellow_cartridge = soup.find('div', class_="progress-inner YellowGauge")['title']
-                self.black_cartridge = soup.find('div', class_="progress-inner BlackGauge")['title']    
+                supplies = json_data["nodes"]['supplies']
+                supplies_to_get = ["Cyan Toner", "Magenta Toner", "Yellow Toner", "Black Toner"]
+                for supply_name, supply_details in supplies.items():
+                    if supply_name in supplies_to_get:
+                        if supply_details['supplyName'] == "Cyan Toner":
+                            self.cyan_cartridge = ""+str(supply_details['percentFull'])+"%"
+                        elif supply_details['supplyName'] == "Magenta Toner":
+                            self.magenta_cartridge = ""+str(supply_details['percentFull'])+"%"
+                        elif supply_details['supplyName'] == "Yellow Toner":
+                            self.yellow_cartridge = ""+str(supply_details['percentFull'])+"%"
+                        elif supply_details['supplyName'] == "Black Toner":
+                            self.black_cartridge = ""+str(supply_details['percentFull'])+"%"
+                    
 
     
     def getLocaton(self):
@@ -292,39 +309,38 @@ class Printer:
                     tray.tray_type = columns[5].text.strip()
                     self.trays.append(tray)
         elif self.model in newModelList:
-            # <div class="trayInfoTitle contentHeader" role="heading">
-            # <span>Tray 1</span>
-            # </div>
-
-            # <div class="trayInfoContainer">
-            # <div class="trayInfo">
-            # <div class=" contentHeader" role="heading">
-            # <span>Capacity</span>
-            # </div>
-            # <div class="contentBody" role="presentation">
-            # 150
-            # </div>
-            url = "http://" + self.name
-            self.getHtml(url)
-            if self.html == "":
+            if self.address != "":
+                url = "http://" + self.address +"/webglue/rawcontent?timedRefresh=1&c=Status&lang=en"
+            else:
+                url = "http://" + self.name +"/webglue/rawcontent?timedRefresh=1&c=Status&lang=en"
+            
+           
+            json_data = self.getJson(url)
+            if json_data == "":
                 self.trays = []
                 return
-            soup = BeautifulSoup(self.html, 'html.parser')
-            tray_tables = soup.findAll('div', class_='trayInfoContainer')
+            
+            inputs = json_data["nodes"]['inputs']
             self.trays = []
-            for tray_table in tray_tables:
-                tray = Tray()
-                tray.name = tray_table.find('div', class_='trayInfoTitle').text.strip()
-                if tray_table.find('div', class_='contentHeader').text.strip() == "Capacity":
-                    tray.capacity = tray_table.find('div', class_='contentBody').text.strip()
-                elif tray_table.find('div', class_='contentHeader').text.strip() == "Size":
-                    tray.size = tray_table.find('div', class_='contentBody').text.strip()
-                elif tray_table.find('div', class_='contentHeader').text.strip() == "Type":
-                    tray.tray_type = tray_table.find('div', class_='contentBody').text.strip()
-                self.trays.append(tray)
-        else:
-            self.trays = []
-            return
+            trays_to_get = ["Tray 1", "Tray 2", "Tray 3", "Tray 4"]
+            for tray_name, tray_details in inputs.items():
+                if tray_name in trays_to_get:
+                    tray_obj = Tray()
+                    tray_obj.name = tray_name
+                    earlyWarning = tray_details['levelInfo']['earlyWarningLevel']
+                    if tray_details['levelInfo']["currentLevel"] < earlyWarning and tray_details['levelInfo']["currentLevel"] > 0:
+                        tray_obj.status = "Low"
+                    elif tray_details['levelInfo']["currentLevel"] == 0:
+                        tray_obj.status = "Empty"
+                    else:
+                        tray_obj.status = "OK"
+                    
+                    tray_obj.capacity = tray_details['capacity']
+                    tray_obj.size = tray_details['sizeString']
+                    tray_obj.tray_type = tray_details['typeString']
+                    self.trays.append(tray_obj)
+
+            
 
 
 ################################################################################################################
@@ -441,6 +457,7 @@ def update(request):
         printer = Printer()
         printer.name = printer_obj.name
         printer.model = printer_obj.model
+        printer.address = printer_obj.address
         printer.update()
         # print(printer.printer_status)
         if printer.printer_status == "" or printer.printer_status == None:
@@ -458,8 +475,8 @@ def update(request):
             traysList.append(tray.__dict__)
         x.trays = traysList
         if x.isColor == True:
-            return JsonResponse({'name': x.name, 'status': x.printer_status, 'location': x.location, 'address': x.address, 'toner_status': x.toner_status, 'toner_percentage': x.toner_percentage, 'trays': x.trays, 'cyan_cartridge': x.cyan_cartridge, 'magenta_cartridge': x.magenta_cartridge, 'yellow_cartridge': x.yellow_cartridge,'black_cartridge':x.black_cartridge,'isColor': x.isColor}, safe=False)
-        return JsonResponse({'name': x.name, 'status': x.printer_status, 'location': x.location, 'address': x.address, 'toner_status': x.toner_status, 'toner_percentage': x.toner_percentage, 'trays': x.trays, 'isColor': x.isColor}, safe=False)
+            return JsonResponse({'name': x.name, 'status': x.printer_status, 'location': x.location, 'address': x.address, 'toner_status': x.toner_status, 'toner_percentage': x.toner_percentage, 'trays': x.trays, 'cyan_cartridge': x.cyan_cartridge, 'magenta_cartridge': x.magenta_cartridge, 'yellow_cartridge': x.yellow_cartridge,'black_cartridge':x.black_cartridge,'isColor': x.isColor,"traysN": len(x.trays)}, safe=False)
+        return JsonResponse({'name': x.name, 'status': x.printer_status, 'location': x.location, 'address': x.address, 'toner_status': x.toner_status, 'toner_percentage': x.toner_percentage, 'trays': x.trays, 'isColor': x.isColor,"traysN": len(x.trays)}, safe=False)
 
 ############################################################################################################
 ############################################################################################################
