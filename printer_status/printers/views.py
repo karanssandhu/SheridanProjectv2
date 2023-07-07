@@ -7,12 +7,10 @@ import selenium
 import re
 from bs4 import BeautifulSoup
 import json
-import pygame
-from pygame import mixer
 # Create your views here.
 
 # load the printers
-PrinterList = []
+PrinterList = [] 
 URLTopbar = ".internal/cgi-bin/dynamic/topbar.html"
 URLStatus = ".internal/cgi-bin/dynamic/printer/PrinterStatus.html"
 
@@ -20,9 +18,6 @@ printers_list = "../Printers.txt"
 
 oldModelList = ['Lexmark XS955', 'Lexmark XS864', 'Lexmark XM3150', 'Lexmark XM7155', 'Lexmark XM9155','Lexmark X954','Lexmark X864de','Lexmark XM7155','Lexmark M5155','Lexmark MX410de','Lexmark CS510de','Lexmark C734']
 newModelList = ['Lexmark XC9255','Lexmark XC4140']
-
-pygame.init()
-mixer.init()
 
 
 didLoad = False
@@ -142,17 +137,10 @@ class Printer:
             self.getHtml(self.get_url_topbar())
             if self.html == "":
                 self.printer_status = "offline"
-                # mixer.music.load('../printer_status/printers/templates/vik.mp3')
-                #pygame.time.delay(10000)
-                # mixer.music.play()
             else:
                 soup = BeautifulSoup(self.html, 'html.parser')
                 status = soup.find('table', class_='statusBox').text.strip()
                 self.printer_status = status
-                # if status != "Ready" or status !="Sleep Mode" or status!='Power Saver':
-                    # mixer.music.load('../printer_status/printers/templates/vik.mp3')
-                    #pygame.time.delay(10000)
-                    # mixer.music.play()
         elif self.model in newModelList:
             if self.address != "":
                 url = "http://" + self.address +"/webglue/isw/status"
@@ -164,7 +152,6 @@ class Printer:
                 self.printer_status = "offline"
             else:
                 # parse the json response
-                # json_data = json.loads(self.html)
                 self.status = json_data[0]['IrTitle'].strip()
                 self.printer_status = json_data[0]['IrTitle'].strip()
                 
@@ -218,7 +205,6 @@ class Printer:
     def getLocaton(self):
 
         if self.model in oldModelList:
-            # url = http://mi-b246a-prn1.internal/
             self.getHtml(self.get_url_topbar())       
             if self.html == "":
                 self.location = "Couldn't find location"
@@ -373,9 +359,8 @@ def load():
                             printer.address = newline.split("+")[1].strip()
                         else:
                             printer.model = newline.strip()
-                            print(printer.model)
                         PrinterList.append(printer)
-
+    print("Loaded printers from file")
     file.close()
     PrinterList.sort(key=lambda x: x.name)
     # didLoad = True
@@ -421,7 +406,6 @@ def loadOnce():
 ############################################ INDEX #########################################################
 
 def index(request):
-    global PrinterList
     # loadOnce()
     
     PrinterList = load()
@@ -431,7 +415,6 @@ def index(request):
 
 def getPrinters(request):
     global PrinterList
-    # loadOnce()
     printers=[]
     PrinterList = load()
     for printer in PrinterList:
@@ -447,64 +430,33 @@ def getPrinters(request):
 
 def update(request):
     if request.method == 'GET':
-        printer_name = request.GET.get('name', None)
-        # printer = PrinterList.__getitem__
-        # find the printer in the list of printers
-        printer_obj = next((x for x in PrinterList if x.name == printer_name), None)
-        if printer_obj == None:
-            load()
-            printer_obj = next((x for x in PrinterList if x.name == printer_name), None)
-        printer = Printer()
-        printer.name = printer_obj.name
-        printer.model = printer_obj.model
-        printer.address = printer_obj.address
-        printer.update()
-        # print(printer.printer_status)
-        if printer.printer_status == "" or printer.printer_status == None:
-            printer.printer_status = "offline"
-            # play song here
-            # samir.mp3
+        try: 
+            printer_name = request.GET.get('name', None)
+            # find the printer in the list of printers
+            try:
+                printer_obj = next((x for x in PrinterList if x.name == printer_name), None)
+            except:
+                return JsonResponse({'error': 'Printer not found, you need to refresh the browser'}, safe=False)
 
-        x = printer
-        # x.pop('session')
-        # x.pop('buffer')
-        # x.pop('html_top_bar')
-        # json response 
-        traysList = []
-        for tray in x.trays:
-            traysList.append(tray.__dict__)
-        x.trays = traysList
-        if x.isColor == True:
-            return JsonResponse({'name': x.name, 'status': x.printer_status, 'location': x.location, 'address': x.address, 'toner_status': x.toner_status, 'toner_percentage': x.toner_percentage, 'trays': x.trays, 'cyan_cartridge': x.cyan_cartridge, 'magenta_cartridge': x.magenta_cartridge, 'yellow_cartridge': x.yellow_cartridge,'black_cartridge':x.black_cartridge,'isColor': x.isColor,"traysN": len(x.trays)}, safe=False)
-        return JsonResponse({'name': x.name, 'status': x.printer_status, 'location': x.location, 'address': x.address, 'toner_status': x.toner_status, 'toner_percentage': x.toner_percentage, 'trays': x.trays, 'isColor': x.isColor,"traysN": len(x.trays)}, safe=False)
+            printer = Printer()
 
+            printer.name = printer_obj.name
+            printer.model = printer_obj.model
+            printer.address = printer_obj.address
+            printer.update()
+            if printer.printer_status == "" or printer.printer_status == None:
+                printer.printer_status = "Offline"
+
+            x = printer
+            traysList = []
+            for tray in x.trays:
+                traysList.append(tray.__dict__)
+            x.trays = traysList
+            if x.isColor == True:
+                return JsonResponse({'name': x.name, 'status': x.printer_status, 'location': x.location, 'address': x.address, 'toner_status': x.toner_status, 'toner_percentage': x.toner_percentage, 'trays': x.trays, 'cyan_cartridge': x.cyan_cartridge, 'magenta_cartridge': x.magenta_cartridge, 'yellow_cartridge': x.yellow_cartridge,'black_cartridge':x.black_cartridge,'isColor': x.isColor,"traysN": len(x.trays)}, safe=False)
+            return JsonResponse({'name': x.name, 'status': x.printer_status, 'location': x.location, 'address': x.address, 'toner_status': x.toner_status, 'toner_percentage': x.toner_percentage, 'trays': x.trays, 'isColor': x.isColor,"traysN": len(x.trays)}, safe=False)
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, safe=False)
 ############################################################################################################
 ############################################################################################################
-############################################################################################################
-
-
-############################################ ADD PRINTER ########################################################
-# To add a printer to the list of printers
-def AddPrinter(request):
-    if request.method == 'GET':
-        return render(request, 'addprinter.html')
-    
-
-def printerWebPage(request):
-    if request.method == 'GET':
-        # get the printer name from the request
-        printer_name = request.GET.get('name', None)
-        # get the ip address of the printer
-        printer_address = request.GET.get('address', None)
-
-
-
-        request = requests.get('http://' + printer_address +"/cgi-bin/dynamic/topbar.html" )
-
-        # get the html of the printer
-        html = request
-        print(html.text)
-
-        return HttpResponse(html)
-    
 ############################################################################################################
