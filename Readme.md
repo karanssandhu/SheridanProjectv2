@@ -41,15 +41,16 @@ Note: You can add comments to provide additional information or context about th
 
 ## Usage
 
-1. Start the Django server by running the following command:
-python manage.py runserver
-2. Open your web browser and navigate to <http://127.0.0.0:8000> to access the Printer Monitoring System interface.
-3. The system will automatically retrieve printer details from the `Printers.txt` file and display them on the web interface.
-4. Monitor printer statuses, ink levels, and other relevant information from the interface.
-5. The system will apply different algorithms based on the printer model to provide accurate monitoring data.
-6. If the printers stop updating, try refreshing the browser or stop the Python server using `Ctrl+C`. Close all browser sessions and reopen the links.
-7. The system will apply different algorithms based on the printer model to provide accurate monitoring data.
-8. If you add a new printer in the `Printers.txt` file, you will need to reload the browser to view it.
+1. Open command prompt and cd to the SheridanProjectv2 and then switch the directory to printer_status by running the following command: `cd printer_status`. 
+2. Start the Django server by running the following command:
+`python manage.py runserver`
+3. Open your web browser and navigate to <http://127.0.0.1:8000> to access the Printer Monitoring System interface.
+4. The system will automatically retrieve printer details from the `Printers.txt` file and display them on the web interface.
+5. Monitor printer statuses, ink levels, and other relevant information from the interface.
+6. The system will apply different algorithms based on the printer model to provide accurate monitoring data.
+7. If the printers stop updating, try refreshing the browser or stop the Python server using `Ctrl+C`. Close all browser sessions and reopen the links.
+8. The system will apply different algorithms based on the printer model to provide accurate monitoring data.
+9. If you add a new printer in the `Printers.txt` file, you will need to reload the browser to view it.
 
 
 
