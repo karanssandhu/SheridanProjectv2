@@ -13,7 +13,7 @@ To run the Printer Monitoring System, ensure that you have the following softwar
 
 ## Installation
 
-1. Clone the repository from [GitHub Repository URL].
+1. Clone the repository from [github.com/karanssandhu/SheridanProjectv2](github.com/karanssandhu/SheridanProjectv2).
 2. Navigate to the project directory using the command line.
 3. Install the required Python packages by running the following command:
 
@@ -30,11 +30,11 @@ To run the Printer Monitoring System, ensure that you have the following softwar
 
 Example:
 ```
-{
+
 mi-a300b-prn1$Lexmark XS864+10.64.64.160 # Main printer in Building A, Room 300B
 mi-a148g-prn1$Lexmark XM7155 # Backup printer in Building A, Room 148G
 mi-a200-prn2$Lexmark XS864 # Printer in Building A, Room 200
-}
+
 ```
 
 Note: You can add comments to provide additional information or context about the printers. Comments should be preceded by a `#` symbol and can be placed anywhere in the line.
@@ -43,8 +43,13 @@ Note: You can add comments to provide additional information or context about th
 
 1. Start the Django server by running the following command:
 python manage.py runserver
-2. Open your web browser and navigate to `http://127.0.0.0:8000` to access the Printer Monitoring System interface.
+2. Open your web browser and navigate to <http://127.0.0.0:8000> to access the Printer Monitoring System interface.
 3. The system will automatically retrieve printer details from the `Printers.txt` file and display them on the web interface.
 4. Monitor printer statuses, ink levels, and other relevant information from the interface.
 5. The system will apply different algorithms based on the printer model to provide accurate monitoring data.
+6. If the printers stop updating, try refreshing the browser or stop the Python server using `Ctrl+C`. Close all browser sessions and reopen the links.
+7. The system will apply different algorithms based on the printer model to provide accurate monitoring data.
+8. If you add a new printer in the `Printers.txt` file, you will need to reload the browser to view it.
+
+
 
