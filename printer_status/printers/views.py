@@ -314,7 +314,8 @@ class Printer:
                     tray_obj = Tray()
                     tray_obj.name = tray_name
                     earlyWarning = tray_details['levelInfo']['earlyWarningLevel']
-                    if tray_details['levelInfo']["currentLevel"] < earlyWarning and tray_details['levelInfo']["currentLevel"] > 0:
+                    print(earlyWarning)
+                    if tray_details['levelInfo']["currentLevel"] <= earlyWarning and tray_details['levelInfo']["currentLevel"] > 0:
                         tray_obj.status = "Low"
                     elif tray_details['levelInfo']["currentLevel"] == 0:
                         tray_obj.status = "Empty"
