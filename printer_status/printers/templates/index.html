@@ -1,279 +1,410 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <meta charset="UTF-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Home</title>
 
-        <style>
-            body{
-                background-color: #383945;
-                color: white;
-                font-family: 'Inter', sans-serif;
-            }
-            h3, h6, p{
-                margin: 0px;
-            }
-            h6{
-                font-weight: 100;
-                font-size: 9px;
-            }
-            .center-content{
-                width: 100%;
-                display: flex;
-                /* justify-content: center; */
-                /* align-items: center; */
-            }
-            .printer-section{
-                width: 100%;
-                height: 100%;
-                padding: 10px;
-            }
-            a{
-                text-decoration: none;
-                color: white;
-            }
-            .printer-card{
-                border-radius: 30px;
-                padding: 8px;
-                display: flex;
-                align-items: center;
-                margin: 5px;
-                /* text-decoration: none; */
-            }
-            .center-text{
-                text-align: center;
-            }
-            .card-ok{
-                background-color: #494B5C;
-            }
-            .card-warning{
-                background-color: #665835;
-            }
-            .card-error{
-                background-color: #5B3F3F;
-            }
-	    .card-empty{
-		background-color: #5B3F3F !important;
-	    }
-            .printer-header{
-                width: 22%;
-                display: flex;
-                flex-direction: column;
-                justify-content: space-evenly;
-                align-items: center;
-            }
-            .printer-status{
-                padding: 0px 10px 0px 10px;
-                width: 60%;
-            }
-            .message{
-                font-size: 18px;
-                padding-bottom: 5px;
-            }
-            .tray-status{
-                display: flex;
-                justify-content: space-between;
-            }
-            .status-ok{
-                color: #3FB706;
-            }
-            .status-warning{
-                color: #FFDB5C;
-            }
-            .status-error{
-                color: #C52300;
-            }
-            .toner-status{
-                width: 125px;
-                padding: 0px 10px 0px 10px;
-                float: right;
-            }
-            .toner-full-status{
-                display: flex;
-                align-items: center;
-		width: 100%;
-            }
-            .toner-bar{
-                width: 70%;
-                height: 6px;
-                padding: 3px;
-                margin: 1px;
-                border-radius: 50px;
-                background-color: #383945;
-            }
-            .b-toner-level{
-                width: 0%;
-                height: 100%;
-                background-color: white;
-                border-radius: 50px;
-            }
-            .toner-percentage{
-                font-size: 1.15rem;
-		width: 30%;
-            }
-            .c-toner-level{
-                width: 100%;
-                height: 100%;
-                background-color: #00FFFF;
-                border-radius: 50px;
-            }
-            .m-toner-level{
-                height: 100%;
-                background-color: #FF00FF;
-                border-radius: 50px;
-            }
-            .y-toner-level{
-                height: 100%;
-                background-color: #FFFF00;
-                border-radius: 50px;
-            }
-            .k-toner-level{
-                height: 100%;
-                background-color: #CFCFCF;
-                border-radius: 50px;
-            }
-	.location{
-		font-size:0.75em;
-		padding:0;
-	}
-		.status-empty{
-		 color: #C52300;
-		}
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home</title>
 
-		.status-low{
-			color: #FFDB5C;
-			}
-        </style>
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
-        <script>
-            var printers = [];
-            // Function to load the initial printer cards
-            function loadPrinterCards() {
-                // Make an AJAX call to receive the printer names
-                $.ajax({
-                    url: '/printers',
-                    method: 'GET',
-                    success: function(response) {
+    <style>
+        body {
+            background-color: #383945;
+            color: white;
+            font-family: 'Inter', sans-serif;
+        }
 
-                        printers = response["printers"];
-                        // Iterate through the printer names and create the printer cards
-                        response["printers"].forEach(function(printerName) {
-                            var printerCard = createPrinterCard(printerName);
-                            index = printers.indexOf(printerName);
-                            var buildingName = printerName.split('-')[1];
-                            if(index % 2 == 0) {
-                                $('#1').append(printerCard);
-                            } else {
-                                $('#2').append(printerCard);
-                            }
-                            // $('.printer-sections').append(printerCard);
-                        });
+        h3,
+        h6,
+        p {
+            margin: 0px;
+        }
 
-                        // Call the updatePrinter function for each printer card every 5 seconds
-                        var printerCards = $('.printer-card');
-                        var index = 0;
+        h6 {
+            font-weight: 100;
+            font-size: 9px;
+        }
 
-                        function updateNextPrinter() {
-                            var printerCard = printerCards.eq(index);
-                            var printerName = printerCard.find('.center-text').find('h3').text();
-                            updatePrinter(printerName, printerCard, index);
-                            index = (index + 1) % printerCards.length;
-                        }
+        .center-content {
+            width: 100%;
+            display: flex;
+            /* justify-content: center; */
+            /* align-items: center; */
+        }
 
-                        setInterval(updateNextPrinter, 1000);
+        .printer-section {
+            width: 100%;
+            height: 100%;
+            padding: 10px;
+        }
 
-                    },
-                    error: function(error) {
-                        console.log('Error loading printer cards:', error);
-                        
-                    }
-                });
-            }
+        a {
+            text-decoration: none;
+            color: white;
+        }
 
-            // Function to create a printer card
-            function createPrinterCard(printerName) {
+        .printer-card {
+            border-radius: 30px;
+            padding: 8px;
+            display: flex;
+            align-items: center;
+            margin: 5px;
+            /* text-decoration: none; */
+        }
 
-                var printerSection = $('<div>').addClass('printer-section');
-                var printerCard = $('<a>').addClass('printer-card card-ok').attr('href', "");
-                printerCard.attr('target', '_blank');
-                var printerHeader = $('<div>').addClass('printer-header');
-                var centerText1 = $('<div>').addClass('center-text');
-                var printerNameHeading = $('<h3>').text(printerName);
-                var centerText2 = $('<div>').addClass('center-text');
-                var locationHeading = $('<h6>').text('Loading...').addClass('location');
-                var borderLine1 = $('<div>').css({'border-left': '1px solid grey', 'height': '35px'});
-                var printerStatus = $('<div>').addClass('printer-status');
-                var messageDiv = $('<div>').addClass('message');
-                var messageParagraph = $('<p>').addClass('message status-ok').text('Loading...');
-                var trayStatusDiv = $('<div>').addClass('tray-status');
-                var tray1 = $('<div>').append($('<p>').text('Tray 1: ').addClass('tray1-p').append($('<span>').addClass('tray1-level status-warning').text('Loading...')));
-                var tray2 = $('<div>').append($('<p>').text('Tray 2: ').addClass('tray2-p').append($('<span>').addClass('tray2-level status-warning').text('Loading...')));
-                var tray3 = $('<div>').append($('<p>').text('Tray 3: ').addClass('tray3-p').append($('<span>').addClass('tray3-level status-warning').text('Loading...')));
-                var tray4 = $('<div>').append($('<p>').text('Tray 4: ').addClass('tray4-p').append($('<span>').addClass('tray4-level status-warning').text('Loading...')));
-                var borderLine2 = $('<div>').css({'border-left': '1px solid grey', 'height': '35px'});
-                var tonerStatus = $('<div>').addClass('toner-status');
-                var tonerFullStatus = $('<div>').addClass('toner-full-status');
-                var tonerPercentage = $('<p>').addClass('toner-percentage').text('0%');
-                var tonerBar = $('<div>').addClass('toner-bar');
-                var tonerLevel = $('<div>').addClass('b-toner-level');
-                // var link = $('<a>').addClass('printer-link').attr('href', 'http://' + printerName).text(printerName);
-                // Construct the printer card structure
-                printerCard.append(
-                    printerHeader.append(
-                        centerText1.append(printerNameHeading),
-                        centerText2.append(locationHeading)
-                    ),
-                    borderLine1,
-                    printerStatus.append(
-                        messageDiv.append(messageParagraph),
-                        trayStatusDiv.append(tray1, tray2, tray3, tray4)
-                    ),
-                    borderLine2,
-                    tonerStatus.append(
-                        tonerFullStatus.append(
-                            tonerPercentage,
-                            tonerBar.append(tonerLevel)
-                        )
-                    )
-                );
-                // link.appendTo(centerText1);
-                printerSection.append(printerCard);
-                $('#printer-container').append(printerSection); // Add the printer card to the container
-                return printerCard;
-            }
+        .center-text {
+            text-align: center;
+        }
 
-            // Call the loadPrinterCards function when the page is ready
-            $(document).ready(function() {
-                loadPrinterCards();
+        .card-ok {
+            background-color: #494B5C;
+        }
 
-            });
+        .card-warning {
+            background-color: #665835;
+        }
 
-    
-            function updatePrinter(printerName, card, index) {
-                $.ajax({
-                    url: '/update',
-                    method: 'GET',
-                    data: {
-                        name: printerName
-                    },
-                    success: function(response) {
-                        card.removeClass('status-ok status-warning status-error status-empty status-low');
-			card.removeClass('card-ok card-warning card-error card-empty card-low');
+        .card-error {
+            background-color: #5B3F3F;
+        }
 
+        .card-empty {
+            background-color: #5B3F3F !important;
+        }
 
-                        if (response['status'] == 'offline') {
-                            card.removeClass('card-ok card-warning').addClass('card-error');
-				card.find('.message p').text(response['status']);
-                            
+        .printer-header {
+            width: 22%;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-evenly;
+            align-items: center;
+        }
+
+        .printer-status {
+            padding: 0px 10px 0px 10px;
+            width: 60%;
+        }
+
+        .message {
+            font-size: 18px;
+            padding-bottom: 5px;
+        }
+
+        .tray-status {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .status-ok {
+            color: #3FB706;
+        }
+
+        .status-warning {
+            color: #FFDB5C;
+        }
+
+        .status-error {
+            color: #C52300;
+        }
+
+        .toner-status {
+            width: 125px;
+            padding: 0px 10px 0px 10px;
+            float: right;
+        }
+
+        .toner-full-status {
+            display: flex;
+            align-items: center;
+            width: 100%;
+        }
+
+        .toner-bar {
+            width: 70%;
+            height: 6px;
+            padding: 3px;
+            margin: 1px;
+            border-radius: 50px;
+            background-color: #383945;
+        }
+
+        .b-toner-level {
+            width: 0%;
+            height: 100%;
+            background-color: white;
+            border-radius: 50px;
+        }
+
+        .toner-percentage {
+            font-size: 1.15rem;
+            width: 30%;
+        }
+
+        .c-toner-level {
+            width: 100%;
+            height: 100%;
+            background-color: #00FFFF;
+            border-radius: 50px;
+        }
+
+        .m-toner-level {
+            height: 100%;
+            background-color: #FF00FF;
+            border-radius: 50px;
+        }
+
+        .y-toner-level {
+            height: 100%;
+            background-color: #FFFF00;
+            border-radius: 50px;
+        }
+
+        .k-toner-level {
+            height: 100%;
+            background-color: #CFCFCF;
+            border-radius: 50px;
+        }
+
+        .location {
+            font-size: 0.75em;
+            padding: 0;
+        }
+
+        .status-empty {
+            color: #C52300;
+        }
+
+        .status-low {
+            color: #FFDB5C;
+        }
+
+        /* White mode styles */
+        body.white-mode {
+            background-color: white;
+            color: black;
+        }
+
+        body.white-mode a {
+            color: black;
+        }
+
+        body.white-mode .printer-card {
+            background-color: #E5E5E5;
+        }
+
+        body.white-mode .card-ok {
+            background-color: #E5E5E5;
+        }
+
+        body.white-mode .status-warning {
+            color: #FFB600;
+
+        }
+
+        /* The switch - the box around the slider */
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 34px;
+        }
+
+        /* Hide default HTML checkbox */
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        /* The slider */
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            -webkit-transition: .4s;
+            transition: .4s;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            -webkit-transition: .4s;
+            transition: .4s;
+        }
+
+        input:checked+.slider {
+            background-color: #2196F3;
+        }
+
+        input:focus+.slider {
+            box-shadow: 0 0 1px #2196F3;
+        }
+
+        input:checked+.slider:before {
+            -webkit-transform: translateX(26px);
+            -ms-transform: translateX(26px);
+            transform: translateX(26px);
+        }
+
+        /* Rounded sliders */
+        .slider.round {
+            border-radius: 34px;
+        }
+
+        .slider.round:before {
+            border-radius: 50%;
+        }
+
+        body.white-mode .slider.round:before {
+            background-color: black;
+        }
+
+        body.white-mode .slider.round {
+            background-color: #ccc;
+        }
+
+        #lblimg {
+            position: relative;
+            top: 20px;
+        }
+    </style>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+    <script>
+        var printers = [];
+        // Function to load the initial printer cards
+        function loadPrinterCards() {
+            // Make an AJAX call to receive the printer names
+            $.ajax({
+                url: '/printers',
+                method: 'GET',
+                success: function (response) {
+
+                    printers = response["printers"];
+                    // Iterate through the printer names and create the printer cards
+                    response["printers"].forEach(function (printerName) {
+                        var printerCard = createPrinterCard(printerName);
+                        index = printers.indexOf(printerName);
+                        var buildingName = printerName.split('-')[1];
+                        if (index % 2 == 0) {
+                            $('#1').append(printerCard);
                         } else {
-                           // arrange();
-                            card.removeClass('card-error card-warning').addClass('card-ok');
+                            $('#2').append(printerCard);
                         }
+                        // $('.printer-sections').append(printerCard);
+                    });
 
-                        
-                        if (response['status'] != 'offline') {
+                    // Call the updatePrinter function for each printer card every 5 seconds
+                    var printerCards = $('.printer-card');
+                    var index = 0;
+
+                    function updateNextPrinter() {
+                        var printerCard = printerCards.eq(index);
+                        var printerName = printerCard.find('.center-text').find('h3').text();
+                        updatePrinter(printerName, printerCard, index);
+                        index = (index + 1) % printerCards.length;
+                    }
+
+                    setInterval(updateNextPrinter, 1000);
+
+                },
+                error: function (error) {
+                    console.log('Error loading printer cards:', error);
+
+                }
+            });
+        }
+
+        // Function to create a printer card
+        function createPrinterCard(printerName) {
+
+            var printerSection = $('<div>').addClass('printer-section');
+            var printerCard = $('<a>').addClass('printer-card card-ok').attr('href', "");
+            printerCard.attr('target', '_blank');
+            var printerHeader = $('<div>').addClass('printer-header');
+            var centerText1 = $('<div>').addClass('center-text');
+            var printerNameHeading = $('<h3>').text(printerName);
+            var centerText2 = $('<div>').addClass('center-text');
+            var locationHeading = $('<h6>').text('Loading...').addClass('location');
+            var borderLine1 = $('<div>').css({ 'border-left': '1px solid grey', 'height': '35px' });
+            var printerStatus = $('<div>').addClass('printer-status');
+            var messageDiv = $('<div>').addClass('message');
+            var messageParagraph = $('<p>').addClass('message status-ok').text('Loading...');
+            var trayStatusDiv = $('<div>').addClass('tray-status');
+            var tray1 = $('<div>').append($('<p>').text('Tray 1: ').addClass('tray1-p').append($('<span>').addClass('tray1-level status-warning').text('Loading...')));
+            var tray2 = $('<div>').append($('<p>').text('Tray 2: ').addClass('tray2-p').append($('<span>').addClass('tray2-level status-warning').text('Loading...')));
+            var tray3 = $('<div>').append($('<p>').text('Tray 3: ').addClass('tray3-p').append($('<span>').addClass('tray3-level status-warning').text('Loading...')));
+            var tray4 = $('<div>').append($('<p>').text('Tray 4: ').addClass('tray4-p').append($('<span>').addClass('tray4-level status-warning').text('Loading...')));
+            var borderLine2 = $('<div>').css({ 'border-left': '1px solid grey', 'height': '35px' });
+            var tonerStatus = $('<div>').addClass('toner-status');
+            var tonerFullStatus = $('<div>').addClass('toner-full-status');
+            var tonerPercentage = $('<p>').addClass('toner-percentage').text('0%');
+            var tonerBar = $('<div>').addClass('toner-bar');
+            var tonerLevel = $('<div>').addClass('b-toner-level');
+            // var link = $('<a>').addClass('printer-link').attr('href', 'http://' + printerName).text(printerName);
+            // Construct the printer card structure
+            printerCard.append(
+                printerHeader.append(
+                    centerText1.append(printerNameHeading),
+                    centerText2.append(locationHeading)
+                ),
+                borderLine1,
+                printerStatus.append(
+                    messageDiv.append(messageParagraph),
+                    trayStatusDiv.append(tray1, tray2, tray3, tray4)
+                ),
+                borderLine2,
+                tonerStatus.append(
+                    tonerFullStatus.append(
+                        tonerPercentage,
+                        tonerBar.append(tonerLevel)
+                    )
+                )
+            );
+            // link.appendTo(centerText1);
+            printerSection.append(printerCard);
+            $('#printer-container').append(printerSection); // Add the printer card to the container
+            return printerCard;
+        }
+
+        // Call the loadPrinterCards function when the page is ready
+        $(document).ready(function () {
+            loadPrinterCards();
+
+        });
+
+
+        function updatePrinter(printerName, card, index) {
+            $.ajax({
+                url: '/update',
+                method: 'GET',
+                data: {
+                    name: printerName
+                },
+                success: function (response) {
+                    card.removeClass('status-ok status-warning status-error status-empty status-low');
+                    card.removeClass('card-ok card-warning card-error card-empty card-low');
+
+
+                    if (response['status'] == 'offline') {
+                        card.removeClass('card-ok card-warning').addClass('card-error');
+                        card.find('.message p').text(response['status']);
+
+                    } else {
+                        // arrange();
+                        card.removeClass('card-error card-warning').addClass('card-ok');
+                    }
+
+
+                    if (response['status'] != 'offline') {
 
                         var printer = response;
                         // console.log(printer);
@@ -281,75 +412,75 @@
                         // Update printer information
                         card.find('.printer-header h6').text(printer['location']);
                         card.find('.message p').text(printer['status']);
-			card.find('.message p').removeClass('status-ok status-warning status-error status-empty status-low');
+                        card.find('.message p').removeClass('status-ok status-warning status-error status-empty status-low');
 
-                        if(printer['status'] == 'Ready' || printer['status'] == 'Busy' || printer['status'] == 'Sleep Mode'|| printer['status'] == 'Power Saver'|| printer['status'] == 'Sleep') {
+                        if (printer['status'] == 'Ready' || printer['status'] == 'Busy' || printer['status'] == 'Sleep Mode' || printer['status'] == 'Power Saver' || printer['status'] == 'Sleep') {
                             card.find('.message p').addClass('status-ok');
                             card.addClass('card-ok');
                         }
-                        else{
-                           // arrange();
+                        else {
+                            // arrange();
                             card.find('.message p').addClass('status-warning');
-				card.removeClass('card-ok');
-				card.addClass('card-warning');
+                            card.removeClass('card-ok');
+                            card.addClass('card-warning');
                         }
 
-                        
+
                         // Update tray status
-                        card.find('.tray1-level').text(printer['trays'][0]['status']+ " " + printer['trays'][0]['size']);
+                        card.find('.tray1-level').text(printer['trays'][0]['status'] + " " + printer['trays'][0]['size']);
                         // if status is ok then change color to green
                         card.find('.tray1-level').removeClass('status-ok status-warning status-error status-low status-empty');
                         card.find('.tray1-level').addClass('status-' + printer['trays'][0]['status'].toLowerCase());
-			card.find('.printer-card').removeClass('card-ok card-warning card-error');
-			card.find('.printer-card').addClass('card-' + printer['trays'][0]['status'].toLowerCase());
-                       card.addClass('card-' + printer['trays'][0]['status'].toLowerCase());
-			//console.log(printer['traysN']);
+                        card.find('.printer-card').removeClass('card-ok card-warning card-error');
+                        card.find('.printer-card').addClass('card-' + printer['trays'][0]['status'].toLowerCase());
+                        card.addClass('card-' + printer['trays'][0]['status'].toLowerCase());
+                        //console.log(printer['traysN']);
                         // if there is more than one tray
- 			if (printer['traysN'] >1){
- 				card.find('.tray2-level').text(printer['trays'][1]['status']+ " " + printer['trays'][1]['size']);
-                       	 	card.find('.tray2-level').removeClass('status-ok status-warning status-error status-low status-empty');
-                        	card.find('.tray2-level').addClass('status-' + printer['trays'][1]['status'].toLowerCase());
-                        	card.find('.printer-card').removeClass('card-ok card-warning')
-				card.find('.printer-card').addClass('card-' + printer['trays'][1]['status'].toLowerCase());
-			
-                        if (printer['traysN'] >2){
-                            card.find('.tray3-level').text(printer['trays'][2]['status']+ " " + printer['trays'][2]['size']);
-                            card.find('.tray3-level').removeClass('status-ok status-warning status-error status-low status-empty');
+                        if (printer['traysN'] > 1) {
+                            card.find('.tray2-level').text(printer['trays'][1]['status'] + " " + printer['trays'][1]['size']);
+                            card.find('.tray2-level').removeClass('status-ok status-warning status-error status-low status-empty');
+                            card.find('.tray2-level').addClass('status-' + printer['trays'][1]['status'].toLowerCase());
                             card.find('.printer-card').removeClass('card-ok card-warning')
-                            card.find('.tray3-level').addClass('status-' + printer['trays'][2]['status'].toLowerCase());
-                            card.find('.printer-card').addClass('card-' + printer['trays'][2]['status'].toLowerCase());
+                            card.find('.printer-card').addClass('card-' + printer['trays'][1]['status'].toLowerCase());
 
-			if(printer['traysN'] >3){
-                            card.find('.tray4-level').text(printer['trays'][3]['status']+ " " + printer['trays'][3]['size']);
-                            card.find('.tray4-level').removeClass('status-ok status-warning status-error status-low status-empty');
-                            card.find('.printer-card').removeClass('card-ok card-warning')
-                            card.find('.tray4-level').addClass('status-' + printer['trays'][3]['status'].toLowerCase());
-                            card.find('.printer-card').addClass('card-' + printer['trays'][3]['status'].toLowerCase());
+                            if (printer['traysN'] > 2) {
+                                card.find('.tray3-level').text(printer['trays'][2]['status'] + " " + printer['trays'][2]['size']);
+                                card.find('.tray3-level').removeClass('status-ok status-warning status-error status-low status-empty');
+                                card.find('.printer-card').removeClass('card-ok card-warning')
+                                card.find('.tray3-level').addClass('status-' + printer['trays'][2]['status'].toLowerCase());
+                                card.find('.printer-card').addClass('card-' + printer['trays'][2]['status'].toLowerCase());
 
-                        	}
-			else{
+                                if (printer['traysN'] > 3) {
+                                    card.find('.tray4-level').text(printer['trays'][3]['status'] + " " + printer['trays'][3]['size']);
+                                    card.find('.tray4-level').removeClass('status-ok status-warning status-error status-low status-empty');
+                                    card.find('.printer-card').removeClass('card-ok card-warning')
+                                    card.find('.tray4-level').addClass('status-' + printer['trays'][3]['status'].toLowerCase());
+                                    card.find('.printer-card').addClass('card-' + printer['trays'][3]['status'].toLowerCase());
 
-                            card.find('.tray4-p').empty();	
-			}
-			}else{
-				card.find('.tray3-p').empty();
-				 card.find('.tray4-p').empty();	
-			}
-		}else{
-			card.find('.tray2-p').empty();
-			card.find('.tray3-p').empty();
-			card.find('.tray4-p').empty();	
-		}
+                                }
+                                else {
+
+                                    card.find('.tray4-p').empty();
+                                }
+                            } else {
+                                card.find('.tray3-p').empty();
+                                card.find('.tray4-p').empty();
+                            }
+                        } else {
+                            card.find('.tray2-p').empty();
+                            card.find('.tray3-p').empty();
+                            card.find('.tray4-p').empty();
+                        }
 
                         // Update toner status
                         card.find('.toner-percentage').text(printer['toner_percentage'] + "%");
                         card.find('.b-toner-level').css('width', printer['toner_percentage'] + "%");
 
                         // add a hyperlink to the card, so if you click on the card it opens the hyper link
-                       // console.log(printer['address'])
-                        var link = "http://"+printer['address'];
+                        // console.log(printer['address'])
+                        var link = "http://" + printer['address'];
                         card.attr('href', link);
-                        if (printer['isColor']==true) {
+                        if (printer['isColor'] == true) {
                             var tonerStatus = card.find('.toner-status');
                             tonerStatus.empty();
                             var yellowTonerFullStatus = $('<div>').addClass('toner-full-status');
@@ -384,9 +515,9 @@
                             keyTonerLevel.css('width', printer['black_cartridge']);
                             keyTonerFullStatus.append(keyTonerPercentage, keyTonerBar);
 
-                            
+
                             tonerStatus.append(yellowTonerFullStatus, magentaTonerFullStatus, cyanTonerFullStatus, keyTonerFullStatus);
-                            
+
                             // card.find('.toner-bar.yellow').css('width', printer['yellow_cartridge']).text(printer['yellow_cartridge']);
                             // card.find('.toner-bar.magenta').css('width', printer['magenta_cartridge']).text(printer['magenta_cartridge']);
                             // card.find('.toner-bar.cyan').css('width', printer['cyan_cartridge']).text(printer['cyan_cartridge']);
@@ -403,22 +534,62 @@
                         }
 
                     }
-                    },
-                    error: function(error) {
-                        console.log('Error updating printer:', printerName, error);
-                    }
-                });
-                
-            }
-            
-        
-        </script>
-        
-    </head>
-    <body>
-        <section class="center-content">
-                <div id="1" class="printer-section"></div>
-                <div id="2" class="printer-section"></div>
-        </section>
-    </body>
+                },
+                error: function (error) {
+                    console.log('Error updating printer:', printerName, error);
+                }
+            });
+
+        }
+
+
+    </script>
+
+</head>
+
+<body>
+    <!-- toggle button for dark mode and white mode -->
+    <!-- <button onclick="toggleWhiteMode()" id="toggleBtn">Toggle White Mode</button> -->
+    <!-- switch btn -->
+    <!-- <div class="switch">
+        <input type="checkbox" id="switch-1" checked onchange="toggleWhiteMode()">
+        <label for="switch-1" id="lblswitch-1">White Mode</label>
+    </div> -->
+
+    <!-- Rounded switch -->
+    <label for="switch-1" id="lblswitch-1"><img width="45" height="45" id="lblimg"
+            src="https://img.icons8.com/external-glyph-silhouettes-icons-papa-vector/78/external-Light-Mode-interface-glyph-silhouettes-icons-papa-vector.png"
+            alt="White Mode" /></label>
+    <label class="switch">
+        <input type="checkbox" id="switch-1" checked onchange="toggleWhiteMode()">
+        <span class="slider round"></label>
+    </label>
+    <section class="center-content">
+        <div id="1" class="printer-section"></div>
+        <div id="2" class="printer-section"></div>
+    </section>
+</body>
+<script>
+    function toggleWhiteMode() {
+
+        var switchBtn = document.querySelector('#switch-1');
+
+        var body = document.querySelector('body');
+        body.classList.toggle('white-mode');
+
+        var toggleBtn = document.querySelector('#lblswitch-1');
+        var toggleImg = document.querySelector('#lblimg');
+        if (switchBtn.checked == true) {
+            toggleImg.src = "https://img.icons8.com/external-glyph-silhouettes-icons-papa-vector/78/external-Light-Mode-interface-glyph-silhouettes-icons-papa-vector.png";
+            toggleImg.alt = "White Mode";
+        } else {
+            toggleImg.src = "https://img.icons8.com/ios-glyphs/78/moon-symbol.png";
+            toggleImg.alt = "Dark Mode";
+
+        }
+
+    }
+</script>
+
+
 </html>
