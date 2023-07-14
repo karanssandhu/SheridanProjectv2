@@ -276,6 +276,11 @@
             position: relative;
             top: 20px;
         }
+
+
+        .modes{
+            display: none;
+        }
     </style>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
     <script>
@@ -548,22 +553,16 @@
 </head>
 
 <body>
-    <!-- toggle button for dark mode and white mode -->
-    <!-- <button onclick="toggleWhiteMode()" id="toggleBtn">Toggle White Mode</button> -->
-    <!-- switch btn -->
-    <!-- <div class="switch">
-        <input type="checkbox" id="switch-1" checked onchange="toggleWhiteMode()">
-        <label for="switch-1" id="lblswitch-1">White Mode</label>
-    </div> -->
-
     <!-- Rounded switch -->
-    <label for="switch-1" id="lblswitch-1"><img width="45" height="45" id="lblimg"
-            src="https://img.icons8.com/external-glyph-silhouettes-icons-papa-vector/78/external-Light-Mode-interface-glyph-silhouettes-icons-papa-vector.png"
-            alt="White Mode" /></label>
-    <label class="switch">
-        <input type="checkbox" id="switch-1" checked onchange="toggleWhiteMode()">
-        <span class="slider round"></label>
-    </label>
+    <div class="modes">
+        <label for="switch-1" id="lblswitch-1"><img width="45" height="45" id="lblimg"
+                src="https://img.icons8.com/external-glyph-silhouettes-icons-papa-vector/78/external-Light-Mode-interface-glyph-silhouettes-icons-papa-vector.png"
+                alt="White Mode" /></label>
+        <label class="switch">
+            <input type="checkbox" id="switch-1" checked onchange="toggleWhiteMode()">
+            <span class="slider round"></label>
+        </label>
+    </div>
     <section class="center-content">
         <div id="1" class="printer-section"></div>
         <div id="2" class="printer-section"></div>
