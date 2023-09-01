@@ -3,10 +3,14 @@ from django.http import HttpResponse
 from django.http import JsonResponse
 import requests
 from urllib.request import urlopen
+from django.http import FileResponse
 import selenium
 import re
 from bs4 import BeautifulSoup
 import json
+import os
+import pygame 
+
 # Create your views here.
 
 # load the printers
@@ -113,7 +117,7 @@ class Printer:
                     self.address = address_tag.split('Address: ')[1].strip()
                 else:
                     self.address = "Address not found (error Parsing)"
-                    print('Address not found')
+                    # print('Address not found')
                 
         elif self.model in newModelList:
             url = "http://" + self.name 
@@ -127,7 +131,7 @@ class Printer:
                     self.address = address_tag.split('Address: ')[1].strip()
                 else:
                     self.address = "Address not found (error Parsing)"
-                    print('Address not found')
+                    # print('Address not found')
         else:
             self.address = "Model not found"
             
@@ -238,18 +242,26 @@ class Printer:
     def getTonerPercentage(self):
         url = self.get_url_status()
         self.getHtml(url)
-        if self.html == "":
+        
+        if not self.html:
             self.toner_percentage = "Couldn't find toner percentage"
             return
+        
         soup = BeautifulSoup(self.html, 'html.parser')
-        toner_percentage_pattern = re.compile(r'Black Cartridge\s*~(\d+)%')
-        toner_percentage_match = toner_percentage_pattern.search(str(soup))
-        self.toner_percentage = toner_percentage_match.group(1) if toner_percentage_match else 'Couldn\'t find toner percentage'
-        if self.toner_percentage == 'Couldn\'t find toner percentage':
-            toner_percentage_pattern = re.compile(r'Black Toner\s*~(\d+)%')
-            toner_percentage_match = toner_percentage_pattern.search(str(soup))
-            self.toner_percentage = toner_percentage_match.group(1) if toner_percentage_match else 'Couldn\'t find toner percentage'
-
+        toner_percentage_patterns = [
+            re.compile(r'Black Cartridge\s*~(\d+)%'),
+            re.compile(r'Black Cartridge\s*(\d+)%'),
+            re.compile(r'Black Toner\s*~(\d+)%'),
+            re.compile(r'Black Toner\s*(\d+)%')
+        ]
+        
+        for pattern in toner_percentage_patterns:
+            toner_percentage_match = pattern.search(str(soup))
+            if toner_percentage_match:
+                self.toner_percentage = toner_percentage_match.group(1)
+                return
+        
+        self.toner_percentage = "Couldn't find toner percentage"
 
 
     def handle_error(self, url, response):
@@ -260,14 +272,14 @@ class Printer:
             self.buffer = ""
             self.status = f"Connection Timeout for URL: {url}"
             self.status_colour = 0b001000
-            print(self.status)
+            # print(self.status)
             return
         self.html_top_bar = ""
         self.html_status = ""
         self.buffer = ""
         self.status = f"Network Error: {response.status_code} for URL: {url}"
         self.status_colour = 0b001000
-        print(self.status)
+        # print(self.status)
 
     def getTrays(self):
         if self.model in oldModelList:
@@ -314,7 +326,7 @@ class Printer:
                     tray_obj = Tray()
                     tray_obj.name = tray_name
                     earlyWarning = tray_details['levelInfo']['earlyWarningLevel']
-                    print(earlyWarning)
+                    # print(earlyWarning)
                     if tray_details['levelInfo']["currentLevel"] <= earlyWarning and tray_details['levelInfo']["currentLevel"] > 0:
                         tray_obj.status = "Low"
                     elif tray_details['levelInfo']["currentLevel"] == 0:
@@ -326,7 +338,6 @@ class Printer:
                     tray_obj.size = tray_details['sizeString']
                     tray_obj.tray_type = tray_details['typeString']
                     self.trays.append(tray_obj)
-
             
 
 
@@ -461,3 +472,14 @@ def update(request):
 ############################################################################################################
 ############################################################################################################
 ############################################################################################################
+
+
+def audio(request):
+    # Replace 'path_to_your_audio_file' with the actual path to your audio file
+    # playAudio()
+    pygame.mixer.init()
+    pygame.mixer.music.load("../alert.mp3")
+    pygame.mixer.music.play()
+    pygame.event.wait()
+    pygame.mixer.music.stop()
+    return HttpResponse(status=200)
